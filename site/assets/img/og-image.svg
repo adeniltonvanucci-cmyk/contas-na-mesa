@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-label="Contas na Mesa">
+  <rect width="1200" height="630" fill="#0f3d3e"/>
+  <circle cx="1060" cy="120" r="200" fill="#e8a317" opacity=".18"/>
+  <rect x="80" y="430" width="360" height="14" rx="7" fill="#e8a317"/>
+  <text x="80" y="300" font-family="Georgia, serif" font-weight="800" font-size="110" fill="#faf6ee">Contas na Mesa</text>
+  <text x="80" y="370" font-family="Arial, sans-serif" font-size="38" fill="#faf6ee" opacity=".85">Gestão, custos e números sem enrolação</text>
+  <text x="80" y="540" font-family="Arial, sans-serif" font-weight="700" font-size="32" fill="#e8a317">contasnamesa.com.br</text>
+</svg>

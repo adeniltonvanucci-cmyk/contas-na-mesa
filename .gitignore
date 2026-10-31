@@ -1,0 +1,6 @@
+# Documentos de trabalho (roteiros, ideias) ficam fora do repositório do site
+*.docx
+~$*
+.DS_Store
+Thumbs.db
+.claude/
