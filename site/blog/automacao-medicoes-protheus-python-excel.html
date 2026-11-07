@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Como automatizei uma medição no Protheus com Python e Excel | Contas na Mesa</title>
+  <meta name="description" content="O passo a passo do robô que lê uma planilha do Excel e preenche a medição no Protheus: o painel de importação, o Excel de saída com duas abas, as bibliotecas Python e a regra que o robô precisou aprender.">
+  <link rel="canonical" href="https://contasnamesa.com.br/blog/automacao-medicoes-protheus-python-excel.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Como automatizei uma medição no Protheus com Python e Excel">
+  <meta property="og:description" content="O robô que lê o Excel e preenche a medição no Protheus, passo a passo e com dados fictícios.">
+  <meta property="og:url" content="https://contasnamesa.com.br/blog/automacao-medicoes-protheus-python-excel.html">
+  <meta property="og:image" content="https://contasnamesa.com.br/assets/img/blog/robo-automacao-capa.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="/assets/img/favicon-64.png" type="image/png">
+  <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <style>
+    .prompt-box { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); margin: 1.4em 0; overflow: hidden; }
+    .prompt-box pre { margin: 0; padding: 18px 20px; white-space: pre-wrap; word-break: break-word; font: .93rem/1.55 ui-monospace, SFMono-Regular, Consolas, monospace; max-height: 28rem; overflow-y: auto; }
+    .prompt-box button { display: block; width: 100%; border: 0; border-top: 1px solid var(--line); background: transparent; color: inherit; font: 700 .95rem var(--font-body, inherit); padding: 12px 16px; cursor: pointer; }
+    .prompt-box button:hover, .prompt-box button:focus-visible { background: var(--line); }
+    .article figure { margin: 1.8em 0; }
+    .article figure img { width: 100%; height: auto; border-radius: var(--radius); border: 1px solid var(--line); box-shadow: var(--shadow); }
+    .article figure.capa img { border: 0; }
+    .article figcaption { font-size: .9rem; color: var(--muted); margin-top: 10px; }
+  </style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"Como automatizei uma medição no Protheus com Python e Excel","datePublished":"2026-11-07","inLanguage":"pt-BR","publisher":{"@type":"Organization","name":"Contas na Mesa"}}</script>
+</head>
+<body>
+  <a class="skip" href="#conteudo">Pular para o conteúdo</a>
+  <header class="site-header">
+    <div class="container header-row">
+      <a class="logo" href="/"><img src="/assets/img/icon-512.png" alt="" width="36" height="36">Contas na Mesa</a>
+      <button class="menu-btn" aria-expanded="false" aria-controls="nav">Menu</button>
+      <nav class="nav" id="nav" aria-label="Principal">
+        <a href="/">Início</a>
+        <a href="/blog/" aria-current="page">Blog</a>
+        <a href="/#videos">Vídeos</a>
+        <a href="/sobre.html">Sobre</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="conteudo">
+    <article class="article">
+      <a class="back" href="/blog/">← Blog</a>
+      <header>
+        <span class="tag">Tecnologia</span>
+        <h1>Como automatizei uma medição no Protheus com Python e Excel</h1>
+        <p class="meta">7 de novembro de 2026 · 6 min de leitura</p>
+      </header>
+
+      <figure class="capa">
+        <img src="/assets/img/blog/robo-automacao-capa.jpg" width="1200" height="675" alt="Ilustração de um robô com capacete amarelo digitando em um notebook com a tela do sistema, em uma obra ao fundo." fetchpriority="high">
+      </figure>
+
+      <p>Na filial onde trabalho, chegam de 70 a 90 medições de carreteiros por quinzena. Preparar e lançar tudo no Protheus me tomava, pelas minhas contas, um dia inteiro ou mais. Hoje eu preparo a planilha e o painel, e o robô lança sozinho, até minimizado, enquanto eu faço outras coisas. Este texto é o passo a passo do que mostrei no vídeo.</p>
+
+      <div class="callout"><strong>Relato do autor, não estatística.</strong> Os números de volume e de tempo acima são a minha experiência nessa filial, não uma medição formal. O ganho é no meu tempo de trabalho: o robô ainda leva o tempo dele para lançar.</div>
+
+      <nav class="toc" aria-label="Neste artigo">
+        <strong>Neste artigo</strong>
+        <ol>
+          <li><a href="#fluxo">O caminho da planilha ao Protheus</a></li>
+          <li><a href="#painel">O painel: de 27 viagens a 5 medições</a></li>
+          <li><a href="#excel">O Excel de saída: duas abas e um identificador</a></li>
+          <li><a href="#robo">O robô: Python, openpyxl e Playwright</a></li>
+          <li><a href="#linha">Como ele escolhe a linha certa</a></li>
+          <li><a href="#data">O erro da data com horário</a></li>
+          <li><a href="#sua-tarefa">Como aplicar na sua tarefa</a></li>
+          <li><a href="#prompt">Prompt para a sua IA montar o seu robô</a></li>
+        </ol>
+      </nav>
+
+      <h2 id="fluxo">O caminho da planilha ao Protheus</h2>
+      <p>Aqui vou mostrar o caso simples: transporte de massa, sem rateio e sem desconto de diesel. O caminho tem cinco passos:</p>
+      <ol>
+        <li>Os apontadores lançam as viagens em campo.</li>
+        <li>Eu extraio a planilha e confiro quanto cada fornecedor transportou naquela filial e naquele período. Esse fechamento é a medição.</li>
+        <li>Carrego a planilha no painel de importação e crio as medições.</li>
+        <li>O painel grava um Excel na pasta que o robô lê.</li>
+        <li>O robô abre o Protheus e preenche cada medição.</li>
+      </ol>
+
+      <h2 id="painel">O painel: de 27 viagens a 5 medições</h2>
+      <p>Arrasto a planilha dos apontadores para o painel e clico em <strong>Analisar arquivo</strong>. No exemplo do vídeo, entraram 27 viagens e o painel devolveu 5 medições prontas para criar: uma por fornecedor, naquela filial e naquele período.</p>
+      <p>Pegue a Transportes Aurora, um fornecedor fictício. O nome aparecia espalhado pela planilha, em datas diferentes. No painel ele vira um grupo só, com 7 viagens que somam 177,06 toneladas. É essa quantidade que eu confiro no item do contrato. Conferi os cinco grupos, posso criar as medições.</p>
+      <figure>
+        <img src="/assets/img/blog/painel-27-viagens-5-medicoes.jpg" width="1200" height="675" loading="lazy" alt="Painel de importação de demonstração mostrando os grupos por fornecedor; o grupo da Transportes Aurora tem 7 viagens e 177,06 toneladas.">
+        <figcaption>Painel de demonstração, com dados fictícios: cada fornecedor vira um grupo, e o botão &ldquo;Criar Medições Selecionadas&rdquo; cria as medições conferidas.</figcaption>
+      </figure>
+      <p class="notice">Todos os dados deste artigo e do vídeo, exceto onde dito, são fictícios, de uma cópia de demonstração do painel. Nenhum fornecedor, contrato ou valor é real.</p>
+
+      <h2 id="excel">O Excel de saída: duas abas e um identificador</h2>
+      <p>Ao enviar as medições confirmadas, o painel grava um Excel que o robô vai ler. Cada medição tem um identificador, e ele é a chave de tudo.</p>
+      <ul>
+        <li><strong>Aba lotes:</strong> o identificador, o contrato, a competência, o período e o fornecedor.</li>
+        <li><strong>Aba itens:</strong> o mesmo identificador, a descrição do serviço e a quantidade.</li>
+      </ul>
+      <p>Assim o programa sabe quais dados levar juntos quando abre o contrato. Um exemplo, com valores fictícios da demonstração:</p>
+      <figure>
+        <img src="/assets/img/blog/excel-de-saida.jpg" width="1200" height="597" loading="lazy" alt="Duas tabelas do Excel de saída: a aba lotes e a aba itens, com o mesmo identificador destacado em verde nas duas.">
+        <figcaption>O mesmo identificador nas duas abas. Valores fictícios da demonstração.</figcaption>
+      </figure>
+      <table>
+        <thead><tr><th>Aba</th><th>Coluna</th><th>Exemplo</th></tr></thead>
+        <tbody>
+          <tr><td>lotes</td><td>id</td><td>MED-2026-1D646810</td></tr>
+          <tr><td>lotes</td><td>contrato, competencia</td><td>9901 · 10/2026</td></tr>
+          <tr><td>lotes</td><td>dt_inicio, dt_fim</td><td>17/10/2026 · 29/10/2026</td></tr>
+          <tr><td>itens</td><td>lote_id</td><td>MED-2026-1D646810</td></tr>
+          <tr><td>itens</td><td>Descricao</td><td>TRANSPORTE MASSA ASFALTICA - EXEMPLO</td></tr>
+          <tr><td>itens</td><td>Quantidade</td><td>177,06</td></tr>
+        </tbody>
+      </table>
+
+      <figure>
+        <img src="/assets/img/blog/painel-medicoes-criadas.jpg" width="1200" height="675" loading="lazy" alt="Painel de demonstração mostrando 5 de 5 medições criadas e a confirmação de que o Excel foi gravado para a automação.">
+        <figcaption>Depois de criar as 5 medições, o painel grava o Excel na pasta que o robô lê. Painel de demonstração, dados fictícios.</figcaption>
+      </figure>
+
+      <h2 id="robo">O robô: Python, openpyxl e Playwright</h2>
+      <p>Usei Python com duas bibliotecas. A primeira, <strong>openpyxl</strong>, lê as abas do Excel e entrega ao programa a descrição que ele precisa procurar. A segunda, <strong>Playwright</strong>, controla o navegador e permite chegar à célula daquele serviço e digitar.</p>
+      <p>Na tela, o robô começa pelo cabeçalho, com a competência e o período medido. Na aba de planilhas, seleciona a planilha contratual. Os itens aparecem embaixo assim que a caixa fica marcada. Ele confere o fornecedor e a loja e então vai para a linha do serviço.</p>
+
+      <h2 id="linha">Como ele escolhe a linha certa</h2>
+      <p>Aqui mora a graça. Duas linhas do contrato começam com &ldquo;transporte de massa&rdquo;. Se o robô lesse só as primeiras palavras, pararia na primeira e digitaria a quantidade no serviço errado.</p>
+      <p>A regra que eu usava no meu trabalho era ler o <strong>nome inteiro do serviço</strong> antes de passar o número para o contrato. Foi essa regra que precisei explicar ao robô. Ele procura a descrição completa, que vem da aba de itens, e só então digita na coluna Quantidade. No vídeo, a quantidade entrou na segunda linha, e a de cima continuou zerada.</p>
+
+      <h2 id="data">O erro da data com horário</h2>
+      <p>Num teste, exportamos a mesma medição duas vezes. O esperado era abrir o Excel e continuar vendo um lote só. Apareceram dois.</p>
+      <p>Ao reler o Excel, uma das datas vinha com o horário junto: meia-noite. O programa comparava as duas formas de escrever o mesmo dia e tratava a segunda como outro registro. A correção foi comparar apenas dia, mês e ano. Repetimos o teste, e dessa vez ficou uma linha só.</p>
+
+      <h2 id="sua-tarefa">Como aplicar na sua tarefa</h2>
+      <p>Você não precisa do Protheus para usar a ideia. Antes de escrever qualquer código, responda quatro perguntas sobre a tarefa que quer automatizar:</p>
+      <ol>
+        <li><strong>Qual regra você já usa sem pensar?</strong> É ela que o robô vai precisar aprender.</li>
+        <li><strong>De onde vêm os dados?</strong> Uma planilha, um sistema, um e-mail.</li>
+        <li><strong>Qual é o resultado esperado?</strong> O que muda no sistema quando a tarefa termina bem.</li>
+        <li><strong>Como você confere?</strong> O robô também precisa de um jeito de provar que acertou.</li>
+      </ol>
+      <p>E teste sempre em uma cópia ou em modo de teste antes de rodar de verdade. Confira o resultado antes de confirmar qualquer coisa.</p>
+
+      <h2 id="prompt">Prompt para a sua IA montar o seu robô</h2>
+      <p>Quer fazer o seu? Copie o texto abaixo, cole no assistente de IA que você já usa (ChatGPT, Claude, Gemini ou outro) e troque a última linha pela sua tarefa. Ele vai primeiro entender o seu caso, com perguntas, e só depois montar o robô em etapas pequenas.</p>
+      <div class="prompt-box">
+        <pre id="prompt-texto">Você é um engenheiro de automação sênior e vai me ajudar a montar, passo a passo, um robô em Python que lê uma planilha do Excel e preenche os dados em um sistema pelo navegador.
+
+Antes de escrever qualquer código, me faça perguntas, uma de cada vez, para entender:
+1. Qual é a tarefa, do início ao fim, e quantas vezes ela se repete.
+2. De onde vêm os dados (planilha, sistema, e-mail) e como as colunas se chamam.
+3. Em qual sistema os dados são digitados e se existe um ambiente de teste ou uma cópia.
+4. Qual regra eu uso, sem pensar, para escolher o campo ou a linha certa.
+5. Como eu confiro que o resultado está certo.
+
+Depois, monte o projeto assim:
+- Use Python, openpyxl para ler o Excel e Playwright para controlar o navegador.
+- Comece por um modo de teste que só mostra o que seria digitado, sem salvar nem confirmar nada.
+- Procure o campo ou a linha pela descrição completa, nunca só pelas primeiras palavras.
+- Ao comparar datas, use só dia, mês e ano, sem horário. Ao reler a planilha, normalize os dados antes de comparar.
+- Grave um registro (log) de cada linha processada, com sucesso ou erro, e pare no primeiro erro inesperado.
+- Peça a minha confirmação antes de qualquer ação que não possa ser desfeita.
+- Nunca peça nem grave a minha senha no código. Deixe-me entrar manualmente no navegador ou use variáveis de ambiente.
+- Use apenas dados de teste ou fictícios até validarmos.
+
+Trabalhe em etapas pequenas: primeiro leia a planilha e mostre os dados; depois abra o sistema e chegue até o campo; depois digite no modo de teste; só no fim rode de verdade, em uma única linha, e eu confiro o resultado.
+
+Minha tarefa é: [DESCREVA AQUI, EM POUCAS LINHAS, A TAREFA QUE VOCÊ QUER AUTOMATIZAR]</pre>
+        <button type="button" id="copiar-prompt">Copiar o prompt</button>
+      </div>
+      <script>
+        (function () {
+          var b = document.getElementById('copiar-prompt'), t = document.getElementById('prompt-texto');
+          if (!b || !t || !navigator.clipboard) { if (b) b.style.display = 'none'; return; }
+          b.addEventListener('click', function () {
+            navigator.clipboard.writeText(t.textContent).then(function () {
+              b.textContent = 'Copiado!';
+              setTimeout(function () { b.textContent = 'Copiar o prompt'; }, 2000);
+            });
+          });
+        })();
+      </script>
+      <p class="notice">Automatize apenas onde você tem autorização para isso e respeite as regras do sistema e da sua empresa. Comece em um ambiente de teste e confira cada resultado antes de rodar de verdade. A IA pode errar: o código gerado precisa da sua revisão.</p>
+
+      <h3>Para quem usa o Claude: baixe a skill</h3>
+      <p>O mesmo roteiro, em formato de <strong>skill</strong>: um arquivo de instruções que o Claude carrega sozinho sempre que a sua conversa for sobre automatizar uma tarefa entre Excel e um sistema. Ela inclui a entrevista inicial, o modo de teste, o registro de cada linha e as armadilhas que encontrei (linhas com o mesmo começo e datas com horário).</p>
+      <ul>
+        <li><a href="/skills/automatizar-tarefa-excel-sistema.zip" download>Baixar a skill (.zip)</a>. No Claude, vá em Configurações &gt; Capacidades &gt; Skills e envie o arquivo. No Claude Code, descompacte a pasta em <code>~/.claude/skills/</code>.</li>
+        <li><a href="/skills/automatizar-tarefa-excel-sistema/SKILL.md">Ler o texto da skill</a>, para usar em qualquer outra IA como instrução inicial.</li>
+      </ul>
+      <p style="font-size:.9rem;color:var(--muted)">Skill versão 1.0 · 07/11/2026. Para conferir que o arquivo não foi alterado, o SHA-256 do .zip é <code style="word-break:break-all">d2370545449f83876fbf8c2d095d46978e138aa0f3469fbdabc466f2614ad087</code>. No Windows: <code>certutil -hashfile arquivo.zip SHA256</code>.</p>
+      <p class="notice">O caminho exato dos menus pode mudar com as atualizações do Claude. Se não achar, procure por &ldquo;Skills&rdquo; nas configurações. A skill não substitui a sua revisão: confira o código antes de rodar.</p>
+
+      <div class="callout"><strong>Assista ao vídeo.</strong> Ele mostra o robô digitando em tempo real. <a href="https://www.youtube.com/@Contasnamesatv" target="_blank" rel="noopener">Canal no YouTube</a>.</div>
+      <!-- Quando o vídeo for publicado, trocar o link do canal acima pelo endereço do vídeo. -->
+
+      <p class="notice">Protheus e TOTVS são marcas de seus respectivos titulares; este conteúdo não tem vínculo com a TOTVS. Os valores são ilustrativos e o relato é de experiência pessoal. O texto é educativo e não substitui orientação técnica do seu sistema ou da sua empresa.</p>
+    </article>
+  </main>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="row">
+        <div>
+          <a class="logo" href="/"><img src="/assets/img/icon-512.png" alt="" width="36" height="36">Contas na Mesa</a>
+          <p style="margin-top:10px;opacity:.85">Gestão, custos e números sem enrolação.</p>
+        </div>
+        <nav aria-label="Rodapé"><ul>
+          <li><a href="/blog/">Blog</a></li>
+          <li><a href="/#videos">Vídeos</a></li>
+          <li><a href="/sobre.html">Sobre</a></li>
+        </ul></nav>
+        <div><strong>Siga o canal</strong><ul style="margin-top:8px"><li><a href="https://www.instagram.com/contasnamesa/" target="_blank" rel="noopener">Instagram @contasnamesa</a></li><li><a href="https://www.youtube.com/@Contasnamesatv" target="_blank" rel="noopener">YouTube @Contasnamesatv</a></li></ul></div>
+      </div>
+      <small>© 2026 Contas na Mesa. Conteúdo informativo; não substitui orientação contábil, jurídica ou de engenharia.</small>
+    </div>
+  </footer>
+  <script src="/assets/js/main.js" defer></script>
+</body>
+</html>
