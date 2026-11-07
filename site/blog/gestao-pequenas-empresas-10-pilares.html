@@ -18,6 +18,17 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/css/style.css">
+  <link rel="stylesheet" href="/assets/css/consent.css">
+  <!-- Google tag (gtag.js) com Consent Mode: nada é gravado até a pessoa aceitar o aviso de cookies -->
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('consent', 'default', {ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied', analytics_storage: 'denied', wait_for_update: 500});
+    try { if (localStorage.getItem('cnm-consent') === 'granted') { gtag('consent', 'update', {ad_storage: 'granted', ad_user_data: 'granted', ad_personalization: 'granted', analytics_storage: 'granted'}); } } catch (e) {}
+    gtag('js', new Date());
+    gtag('config', 'G-33HW0K8BK5');
+  </script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-33HW0K8BK5"></script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"Gestão de pequenas empresas: 10 pilares para o seu negócio","datePublished":"2026-10-31","inLanguage":"pt-BR","publisher":{"@type":"Organization","name":"Contas na Mesa"}}</script>
 </head>
 <body>
@@ -101,6 +112,8 @@
           <li><a href="/blog/">Blog</a></li>
           <li><a href="/#videos">Vídeos</a></li>
           <li><a href="/sobre.html">Sobre</a></li>
+          <li><a href="/privacidade.html">Privacidade</a></li>
+          <li><a href="#" data-cookies>Preferências de cookies</a></li>
         </ul></nav>
         <div><strong>Siga o canal</strong><ul style="margin-top:8px"><li><a href="https://www.instagram.com/contasnamesa/" target="_blank" rel="noopener">Instagram @contasnamesa</a></li><li><a href="https://www.youtube.com/@Contasnamesatv" target="_blank" rel="noopener">YouTube @Contasnamesatv</a></li></ul></div>
       </div>
@@ -108,5 +121,6 @@
     </div>
   </footer>
   <script src="/assets/js/main.js" defer></script>
+  <script src="/assets/js/consent.js" defer></script>
 </body>
 </html>

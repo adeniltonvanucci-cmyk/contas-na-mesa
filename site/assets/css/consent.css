@@ -1,0 +1,24 @@
+.cnm-cookies {
+  position: fixed; left: 16px; right: 16px; bottom: 16px; z-index: 100;
+  max-width: 720px; margin-inline: auto;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px;
+  padding: 16px 18px;
+  background: var(--surface); color: var(--ink);
+  border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .25);
+  font-size: .93rem; line-height: 1.5;
+}
+.cnm-cookies p { margin: 0; flex: 1 1 320px; }
+.cnm-cookies a { color: inherit; text-decoration: underline; }
+.cnm-cookies-acoes { display: flex; gap: 10px; flex: 0 0 auto; }
+.cnm-cookies button {
+  font: 700 .93rem/1 inherit; font-family: inherit; cursor: pointer;
+  padding: 11px 18px; border-radius: 999px;
+  border: 1px solid var(--ink); background: transparent; color: var(--ink);
+}
+.cnm-cookies .cnm-aceitar { background: var(--ink); color: var(--bg); }
+.cnm-cookies button:focus-visible { outline: 3px solid var(--accent, #f5b301); outline-offset: 2px; }
+@media (max-width: 520px) {
+  .cnm-cookies-acoes { width: 100%; }
+  .cnm-cookies button { flex: 1; }
+}
