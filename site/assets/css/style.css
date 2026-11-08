@@ -184,3 +184,7 @@ section.block { padding-block: clamp(40px, 7vw, 76px); }
 .shorts-grid { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
 .lite-yt.short { aspect-ratio: 9 / 16; }
 .shorts-grid .video-caption { font-size: .9rem; }
+
+/* Fotos dos artigos */
+.article .foto { margin: 1.4em 0; }
+.article .foto img { width: 100%; height: auto; border-radius: var(--radius); display: block; box-shadow: var(--shadow); }
