@@ -188,3 +188,10 @@ section.block { padding-block: clamp(40px, 7vw, 76px); }
 /* Fotos dos artigos */
 .article .foto { margin: 1.4em 0; }
 .article .foto img { width: 100%; height: auto; border-radius: var(--radius); display: block; box-shadow: var(--shadow); }
+
+/* Autor */
+.byline { display: flex; align-items: center; gap: 10px; margin: 6px 0 0; font-size: .95rem; color: var(--muted); }
+.byline img { width: 28px; height: 28px; border-radius: 50%; }
+.byline a { color: var(--muted); }
+.autor-box { display: flex; gap: 14px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 18px; }
+.autor-box img { width: 56px; height: 56px; border-radius: 50%; flex: none; }
